@@ -1,0 +1,38 @@
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: footoria-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "TonMotDePasse123!"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - footoria-network
+    restart: unless-stopped
+
+  web:
+    build: ./Footoria_P_BD_141/Footoria_SQL_Web_Only
+    container_name: footoria-web
+    environment:
+      PORT: "8080"
+      DATABASE_URL: "mssql+pyodbc://sa:TonMotDePasse123%21@database:1433/footoria?driver=ODBC+Driver+18+for+SQL+Server&TrustServerCertificate=yes"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+    networks:
+      - footoria-network
+    restart: unless-stopped
+
+volumes:
+  sqlserver-data:
+
+networks:
+  footoria-network:
+    driver: bridge
+
